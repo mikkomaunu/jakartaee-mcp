@@ -32,6 +32,21 @@ public final class JsonUtils {
     }
 
     /**
+     * Parses a JSON array string into a List.
+     *
+     * @param json the JSON array string to parse
+     * @return the parsed List, or empty list if parsing fails
+     */
+    @SuppressWarnings("unchecked")
+    public static List<Object> parseJsonArray(String json) {
+        json = json.trim();
+        if (json.startsWith("[") && json.endsWith("]")) {
+            return parseArray(json, 0);
+        }
+        return List.of();
+    }
+
+    /**
      * Parses a JSON object string into a Map.
      *
      * @param json the JSON object string (without outer braces)

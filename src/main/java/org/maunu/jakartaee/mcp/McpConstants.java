@@ -8,9 +8,13 @@ package org.maunu.jakartaee.mcp;
 public final class McpConstants {
 
     public static final String PROTOCOL_VERSION = "1.0";
+    public static final String STREAMABLE_PROTOCOL_VERSION = "2025-03-26";
     public static final String SERVER_NAME = "jakartaee-mcp";
     public static final String SERVER_VERSION = "0.0.1";
     public static final String CONTENT_TYPE_JSON = "application/json";
+    public static final String CONTENT_TYPE_SSE = "text/event-stream";
+    public static final String HEADER_MCP_SESSION_ID = "Mcp-Session-Id";
+    public static final String HEADER_LAST_EVENT_ID = "Last-Event-ID";
 
     // Tool names
     public static final String TOOL_LIST_PACKAGES = "list_packages";
