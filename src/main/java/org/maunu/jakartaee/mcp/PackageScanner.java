@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Utility class for discovering child packages and classes from Jakarta EE sources.
@@ -24,6 +26,7 @@ import java.util.jar.JarFile;
 public class PackageScanner {
 
     private static final String SOURCES_JAR_PATH = "resources/jakarta.jakartaee-api-10.0.0-sources.jar";
+    private static final Logger LOGGER = Logger.getLogger(PackageScanner.class.getName());
     
     private final ClassLoader classLoader;
     private final Map<String, Path> extractedFilesCache = new HashMap<>();
@@ -130,6 +133,7 @@ public class PackageScanner {
      * @return list of child package names that start with the root followed by a dot
      */
     public List<String> getPackages(String root) {
+        LOGGER.log(Level.INFO, "Service called: getPackages with root={0}", root);
         List<String> packages = new ArrayList<>();
         String packagePath = root.replace('.', '/') + "/";
 
@@ -141,6 +145,8 @@ public class PackageScanner {
             // Return empty list on error
         }
 
+        LOGGER.log(Level.INFO, "Service completed: getPackages found {0} packages for root={1}", 
+            new Object[]{packages.size(), root});
         return packages;
     }
 
@@ -196,20 +202,24 @@ public class PackageScanner {
      * @return a Pair containing the content and the file type found ("package-info.java" or "package.html"), or null if neither found
      */
     public Map.Entry<String, String> getPackageDoc(String packageName) {
+        LOGGER.log(Level.INFO, "Service called: getPackageDoc with packageName={0}", packageName);
         String packagePath = packageName.replace('.', '/') + "/";
         
         // Try package-info.java first
         String infoContent = getContentFromJar(packagePath + "package-info.java");
         if (infoContent != null) {
+            LOGGER.log(Level.INFO, "Service completed: getPackageDoc found package-info.java for package={0}", packageName);
             return new java.util.AbstractMap.SimpleEntry<>(infoContent, "package-info.java");
         }
         
         // Fall back to package.html
         String htmlContent = getContentFromJar(packagePath + "package.html");
         if (htmlContent != null) {
+            LOGGER.log(Level.INFO, "Service completed: getPackageDoc found package.html for package={0}", packageName);
             return new java.util.AbstractMap.SimpleEntry<>(htmlContent, "package.html");
         }
         
+        LOGGER.log(Level.INFO, "Service completed: getPackageDoc found no documentation for package={0}", packageName);
         return null;
     }
 
@@ -221,6 +231,7 @@ public class PackageScanner {
      * @return list of class names (without .java extension) in the package
      */
     public List<String> getClasses(String packageName) {
+        LOGGER.log(Level.INFO, "Service called: getClasses with packageName={0}", packageName);
         List<String> classes = new ArrayList<>();
         String packagePath = packageName.replace('.', '/') + "/";
 
@@ -232,6 +243,8 @@ public class PackageScanner {
             // Return empty list on error
         }
 
+        LOGGER.log(Level.INFO, "Service completed: getClasses found {0} classes for package={1}", 
+            new Object[]{classes.size(), packageName});
         return classes;
     }
 
@@ -265,8 +278,15 @@ public class PackageScanner {
      * @return the source code as a String, or null if not found
      */
     public String getSourceCode(String className) {
+        LOGGER.log(Level.INFO, "Service called: getSourceCode with className={0}", className);
         String filePath = className.replace('.', '/') + ".java";
-        return getContentFromJar(filePath);
+        String result = getContentFromJar(filePath);
+        if (result != null) {
+            LOGGER.log(Level.INFO, "Service completed: getSourceCode found source for class={0}", className);
+        } else {
+            LOGGER.log(Level.INFO, "Service completed: getSourceCode found no source for class={0}", className);
+        }
+        return result;
     }
 
     /**

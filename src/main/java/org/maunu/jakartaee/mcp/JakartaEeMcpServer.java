@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * MCP (Model Context Protocol) server for Jakarta EE.
@@ -20,6 +22,7 @@ public class JakartaEeMcpServer {
     private static final String PROTOCOL_VERSION = "1.0";
     private static final String SERVER_NAME = "jakartaee-mcp";
     private static final String SERVER_VERSION = "0.0.1";
+    private static final Logger LOGGER = Logger.getLogger(JakartaEeMcpServer.class.getName());
 
     private final PackageScanner packageScanner;
     private final BufferedReader in;
@@ -39,6 +42,7 @@ public class JakartaEeMcpServer {
      * Starts the MCP server.
      */
     public void start() {
+        LOGGER.log(Level.INFO, "MCP server starting with protocol version {0}", PROTOCOL_VERSION);
         sendServerInfo();
 
         String line;
@@ -57,7 +61,7 @@ public class JakartaEeMcpServer {
                 handleMessage(message);
             }
         } catch (IOException e) {
-            System.err.println("Error reading input: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Error reading input: " + e.getMessage(), e);
         }
     }
 
@@ -150,6 +154,8 @@ public class JakartaEeMcpServer {
         Object idObj = message.get("id");
         Long id = idObj != null ? ((Number) idObj).longValue() : null;
 
+        LOGGER.log(Level.INFO, "Handling message with method: {0}, id: {1}", new Object[]{method, id});
+
         switch (method) {
             case "initialize":
                 handleInitialize(message, id);
@@ -161,7 +167,7 @@ public class JakartaEeMcpServer {
                 handleToolsCall(message, id);
                 break;
             default:
-                System.err.println("Unknown method: " + method);
+                LOGGER.log(Level.WARNING, "Unknown method: {0}", method);
         }
     }
 
